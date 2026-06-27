@@ -12,9 +12,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraftforge.fml.common.Mod;
 
-import java.util.*;
-
+@Mod.EventBusSubscriber(modid = "punishment", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class WitchingHourHandler {
 
     private static final long MIDNIGHT_TIME = 18000L;
@@ -29,7 +29,6 @@ public class WitchingHourHandler {
     private final Set<UUID> triggeredThisNight = new HashSet<>();
     private final Set<UUID> nightProcessed = new HashSet<>();
 
-    // Statyczna referencja, aby komenda miała dostęp do działającego handlera
     public static WitchingHourHandler INSTANCE;
 
     public WitchingHourHandler() {
@@ -66,7 +65,6 @@ public class WitchingHourHandler {
         }
     }
 
-    // Publiczna metoda wywoływana przez komendę, aby ręcznie odpalić event
     public void forceStartWitchingHour(ServerPlayer player) {
         UUID uuid = player.getUUID();
         triggeredThisNight.add(uuid);
@@ -155,11 +153,10 @@ public class WitchingHourHandler {
         }
     }
 
-    // Rejestracja komendy gry /setwitchinghour
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(Commands.literal("setwitchinghour")
-            .requires(source -> source.hasPermission(2)) // Wymaga cheatów/OP
+            .requires(source -> source.hasPermission(2))
             .executes(context -> {
                 try {
                     ServerPlayer player = context.getSource().getPlayerOrException();
@@ -167,7 +164,10 @@ public class WitchingHourHandler {
                         INSTANCE.forceStartWitchingHour(player);
                         context.getSource().sendSuccess(() -> Component.literal("§aPomyślnie uruchomiono Witching Hour! Uciekaj!"), true);
                     } else {
-                        context.getSource().sendFailure(Component.literal("§cBłąd: Silnik modyfikacji nie jest jeszcze zainicjalizowany."));
+                        // Jeśli gra dopiero startuje i INSTANCE jest puste, tworzymy je na szybko
+                        INSTANCE = new WitchingHourHandler();
+                        INSTANCE.forceStartWitchingHour(player);
+                        context.getSource().sendSuccess(() -> Component.literal("§aPomyślnie uruchomiono Witching Hour! Uciekaj!"), true);
                     }
                 } catch (Exception e) {
                     context.getSource().sendFailure(Component.literal("§cBłąd: Komendę można wykonać tylko jako gracz."));
