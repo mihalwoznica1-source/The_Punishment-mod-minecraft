@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+    modId="punishment"
+    version="1.0.0"
+    displayName="The Punishment"
+    description='''
+        Adds a horrifying entity "The Punishment" that hunts players during the Witching Hour.
+        Survive or die. There is no third option.
+    '''
+    logoFile="punishment_logo.png"
+    authors="YourName"
+
+[[dependencies.punishment]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47.1,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.punishment]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.22)"
+    ordering="NONE"
+    side="BOTH"
